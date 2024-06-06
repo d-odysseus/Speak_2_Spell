@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>Spelling Game</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+        
         body {
             margin: 0;
             overflow: hidden;
-            font-family: Arial, sans-serif;
+            font-family: 'Comic Neue', cursive, sans-serif;
         }
         canvas {
             background-color: #e0f7fa;
@@ -49,7 +51,7 @@
 
         function drawInitialScreen() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = "48px Comic Sans MS, cursive, sans-serif";
+            ctx.font = "48px 'Comic Neue', cursive, sans-serif";
             ctx.textAlign = "center";
             ctx.fillStyle = "#00796b";
             ctx.fillText("Click to Start the Game", canvas.width / 2, canvas.height / 2);
@@ -80,7 +82,7 @@
 
         function drawWords() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = "64px Comic Sans MS, cursive, sans-serif";
+            ctx.font = "64px 'Comic Neue', cursive, sans-serif";
             ctx.textAlign = "center";
             const x = canvas.width * 0.75;
             const yStart = canvas.height * 0.2;
@@ -155,7 +157,7 @@
 
         function showCelebration() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = "64px Comic Sans MS, cursive, sans-serif";
+            ctx.font = "64px 'Comic Neue', cursive, sans-serif";
             ctx.fillStyle = "#ffeb3b";
             ctx.fillText("Correct!", canvas.width / 2, canvas.height / 2);
 
