@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spelling Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            background-color: #f0f0f0;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const words = ["fox", "monster", "dragon", "the", "and", "rabbit"];
+        const audioFiles = {
+            fox: "fox.mp3",
+            monster: "monster.mp3",
+            dragon: "dragon.mp3",
+            the: "the.mp3",
+            and: "and.mp3",
+            rabbit: "rabbit.mp3"
+        };
+        const successAudio = new Audio("success.mp3");
+        const tryAgainAudio = new Audio("tryagain.mp3");
+
+        let canvas, ctx;
+        let selectedWords = [];
+        let correctWord = "";
+        let audio = null;
+        let gameStarted = false;
+
+        function setup() {
+            canvas = document.getElementById("gameCanvas");
+            ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            drawInitialScreen();
+            canvas.addEventListener("click", handleCanvasClick);
+        }
+
+        function drawInitialScreen() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "48px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("Click to Start the Game", canvas.width / 2, canvas.height / 2);
+        }
+
+        function startGame() {
+            selectedWords = [];
+            while (selectedWords.length < 4) {
+                const randomWord = words[Math.floor(Math.random() * words.length)];
+                if (!selectedWords.includes(randomWord)) {
+                    selectedWords.push(randomWord);
+                }
+            }
+            correctWord = selectedWords[Math.floor(Math.random() * selectedWords.length)];
+            playAudio(correctWord);
+            drawWords();
+        }
+
+        function playAudio(word) {
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+            audio = new Audio(audioFiles[word]);
+            audio.play();
+        }
+
+        function drawWords() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "48px Arial";
+            ctx.textAlign = "center";
+            const x = canvas.width * 0.75;
+            const yStart = canvas.height * 0.2;
+            const yGap = canvas.height * 0.15;
+
+            for (let i = 0; i < selectedWords.length; i++) {
+                const y = yStart + i * yGap;
+                ctx.fillText(selectedWords[i], x, y);
+                ctx.strokeRect(x - 100, y - 50, 200, 60); // Highlighting the word area
+            }
+        }
+
+        function handleCanvasClick(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            if (!gameStarted) {
+                gameStarted = true;
+                startGame();
+                return;
+            }
+
+            const xCenter = canvas.width * 0.75;
+            const yStart = canvas.height * 0.2;
+            const yGap = canvas.height * 0.15;
+
+            for (let i = 0; i < selectedWords.length; i++) {
+                const wordY = yStart + i * yGap;
+                if (x > xCenter - 100 && x < xCenter + 100 && y > wordY - 50 && y < wordY + 10) {
+                    if (selectedWords[i] === correctWord) {
+                        successAudio.play();
+                        successAudio.onended = startGame;
+                    } else {
+                        tryAgainAudio.play();
+                    }
+                    break;
+                }
+            }
+        }
+
+        window.onload = setup;
+    </script>
+</body>
+</html>
