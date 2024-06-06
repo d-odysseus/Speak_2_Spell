@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif;
         }
         canvas {
-            background-color: #f0f0f0;
+            background-color: #e0f7fa;
             display: block;
         }
     </style>
@@ -35,6 +35,8 @@
         let correctWord = "";
         let audio = null;
         let gameStarted = false;
+        let goldBars = 0;
+        const maxGoldBars = 5;
 
         function setup() {
             canvas = document.getElementById("gameCanvas");
@@ -47,8 +49,9 @@
 
         function drawInitialScreen() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = "48px Arial";
+            ctx.font = "48px Comic Sans MS, cursive, sans-serif";
             ctx.textAlign = "center";
+            ctx.fillStyle = "#00796b";
             ctx.fillText("Click to Start the Game", canvas.width / 2, canvas.height / 2);
         }
 
@@ -63,6 +66,7 @@
             correctWord = selectedWords[Math.floor(Math.random() * selectedWords.length)];
             playAudio(correctWord);
             drawWords();
+            drawBucket();
         }
 
         function playAudio(word) {
@@ -76,16 +80,19 @@
 
         function drawWords() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = "48px Arial";
+            ctx.font = "64px Comic Sans MS, cursive, sans-serif";
             ctx.textAlign = "center";
             const x = canvas.width * 0.75;
             const yStart = canvas.height * 0.2;
-            const yGap = canvas.height * 0.15;
+            const yGap = canvas.height * 0.2;
+            const colors = ["#37474f", "#5d4037", "#1b5e20", "#0d47a1", "#4a148c", "#bf360c"];
 
             for (let i = 0; i < selectedWords.length; i++) {
                 const y = yStart + i * yGap;
+                ctx.fillStyle = colors[i % colors.length];
                 ctx.fillText(selectedWords[i], x, y);
-                ctx.strokeRect(x - 100, y - 50, 200, 60); // Highlighting the word area
+                ctx.strokeStyle = "#000";
+                ctx.strokeRect(x - 150, y - 50, 300, 60); // Highlighting the word area
             }
         }
 
@@ -102,20 +109,72 @@
 
             const xCenter = canvas.width * 0.75;
             const yStart = canvas.height * 0.2;
-            const yGap = canvas.height * 0.15;
+            const yGap = canvas.height * 0.2;
 
             for (let i = 0; i < selectedWords.length; i++) {
                 const wordY = yStart + i * yGap;
-                if (x > xCenter - 100 && x < xCenter + 100 && y > wordY - 50 && y < wordY + 10) {
+                if (x > xCenter - 150 && x < xCenter + 150 && y > wordY - 50 && y < wordY + 10) {
                     if (selectedWords[i] === correctWord) {
                         successAudio.play();
-                        successAudio.onended = startGame;
+                        goldBars++;
+                        if (goldBars >= maxGoldBars) {
+                            goldBars = 0;
+                            showCelebration();
+                            successAudio.onended = startGame;
+                        } else {
+                            successAudio.onended = startGame;
+                        }
                     } else {
                         tryAgainAudio.play();
                     }
                     break;
                 }
             }
+        }
+
+        function drawBucket() {
+            const bucketX = canvas.width * 0.1;
+            const bucketY = canvas.height * 0.7;
+            const bucketWidth = 100;
+            const bucketHeight = 150;
+
+            // Draw bucket
+            ctx.fillStyle = "#795548";
+            ctx.fillRect(bucketX, bucketY, bucketWidth, bucketHeight);
+            ctx.fillStyle = "#000";
+            ctx.strokeRect(bucketX, bucketY, bucketWidth, bucketHeight);
+
+            // Draw gold bars
+            const barWidth = bucketWidth * 0.8;
+            const barHeight = bucketHeight / maxGoldBars;
+            ctx.fillStyle = "#ffd700";
+            for (let i = 0; i < goldBars; i++) {
+                ctx.fillRect(bucketX + bucketWidth * 0.1, bucketY + bucketHeight - (i + 1) * barHeight, barWidth, barHeight - 5);
+            }
+        }
+
+        function showCelebration() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "64px Comic Sans MS, cursive, sans-serif";
+            ctx.fillStyle = "#ffeb3b";
+            ctx.fillText("Correct!", canvas.width / 2, canvas.height / 2);
+
+            // Draw celebratory graphics
+            const confettiCount = 100;
+            for (let i = 0; i < confettiCount; i++) {
+                drawConfetti();
+            }
+        }
+
+        function drawConfetti() {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const size = Math.random() * 10 + 5;
+            const colors = ["#f44336", "#ff9800", "#ffeb3b", "#8bc34a", "#00bcd4", "#9c27b0"];
+            ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, 2 * Math.PI);
+            ctx.fill();
         }
 
         window.onload = setup;
